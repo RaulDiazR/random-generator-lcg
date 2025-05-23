@@ -51,7 +51,7 @@ def estadisticas(ciclo, m):
         frecuencias[x] = frecuencias.get(x, 0) + 1
     max_freq = max(frecuencias.values())
     if max_freq == 1:
-        moda = "no hay moda"
+        moda = ""
     else:
         moda = ', '.join(str(k) for k in sorted([k for k, v in frecuencias.items() if v == max_freq]))
 
