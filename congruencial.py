@@ -1,4 +1,5 @@
 import sys
+from collections import defaultdict
 
 def leer_entrada():
     entrada = sys.stdin.read().strip().split()
@@ -9,88 +10,104 @@ def leer_entrada():
     n = int(entrada[4])
     return x0, a, c, m, n
 
-def generar_congruencial(x0, a, c, m, n):
+def detectar_ciclo(x0, a, c, m):
     vistos = {}
     secuencia = []
     x = x0
+    i = 0
 
-    for i in range(n):
-        if x in vistos:
-            break
+    while x not in vistos:
         vistos[x] = i
         secuencia.append(x)
         x = (a * x + c) % m
+        i += 1
 
-    # Detectar cola y ciclo
-    if x in vistos:
-        i = vistos[x]
-        cola = secuencia[:i]
-        periodo = secuencia[i:]
-    else:
-        cola = []
-        periodo = secuencia
+    inicio_ciclo = vistos[x]
+    cola = secuencia[:inicio_ciclo]
+    ciclo = secuencia[inicio_ciclo:]
+    periodo = cola + ciclo
 
-    ciclo = cola + periodo
     return cola, periodo, ciclo
 
-def estadisticas(ciclo, m):
-    normalizados = [x / m for x in ciclo]
-    n = len(normalizados)
+def generar_para_estadisticas(x0, a, c, m, n):
+    if n <= 0:
+        return []
+    secuencia = []
+    x = x0
+    for _ in range(n):
+        secuencia.append(x)
+        x = (a * x + c) % m
+    return secuencia
+
+def estadisticas(datos, m):
+    n = len(datos)
+    
+    if n == 0:
+        # Evita divisiones por cero y errores con listas vacías
+        return 0.0, 0, "", 0.0, 0.0, [0.0] * 10
 
     # Media
-    media = sum(normalizados) / n
+    media = sum(datos) / n
 
     # Mediana
-    sorted_vals = sorted(ciclo)
+    sorted_vals = sorted(datos)
     mid = n // 2
-    mediana = sorted_vals[mid] if n % 2 == 1 else (sorted_vals[mid - 1] + sorted_vals[mid]) // 2
+    if n % 2 == 1:
+        mediana = sorted_vals[mid]
+    else:
+        mediana = (sorted_vals[mid - 1] + sorted_vals[mid]) // 2
 
     # Moda
-    frecuencias = {}
-    for x in ciclo:
-        frecuencias[x] = frecuencias.get(x, 0) + 1
-    max_freq = max(frecuencias.values())
+    freq = defaultdict(int)
+    for x in datos:
+        freq[x] += 1
+    max_freq = max(freq.values())
     if max_freq == 1:
         moda = ""
     else:
-        moda = ', '.join(str(k) for k in sorted([k for k, v in frecuencias.items() if v == max_freq]))
+        moda_vals = sorted([k for k, v in freq.items() if v == max_freq])
+        moda = ', '.join(str(x) for x in moda_vals)
 
-    # Varianza y desviación estándar muestral
-    varianza = sum((x - media) ** 2 for x in normalizados) / (n - 1)
-    desviacion = varianza ** 0.5
+    # Varianza y desviación estándar
+    if n > 1:
+        varianza = sum((x - media) ** 2 for x in datos) / (n - 1)
+        desviacion = varianza ** 0.5
+    else:
+        varianza = 0.0
+        desviacion = 0.0
 
-    # Porcentajes en intervalos [0.0, 0.1), ..., (0.9, 1.0]
+    # Porcentajes por intervalo
+    normalizados = [x / m for x in datos]
     porcentajes = [0] * 10
     for x in normalizados:
         idx = min(int(x * 10), 9)
+        if x == idx / 10 and idx > 0:
+            idx -= 1
         porcentajes[idx] += 1
     porcentajes = [(c / n) * 100 for c in porcentajes]
 
     return media, mediana, moda, desviacion, varianza, porcentajes
 
-def imprimir_resultados(cola, periodo, ciclo, media, mediana, moda, desviacion, varianza, porcentajes):
-    print("cola = " + ', '.join(str(x) for x in cola))
-    print("periodo = " + ', '.join(str(x) for x in periodo))
-    print("ciclo = " + ', '.join(str(x) for x in ciclo))
-    print("longitud de cola = " + str(len(cola)))
-    print("longitud de periodo = " + str(len(periodo)))
-    print("longitud de ciclo = " + str(len(ciclo)))
-    print(f"media = {media:.6f}")
-    print(f"mediana = {mediana}")
-    print(f"moda = {moda}")
-    print(f"desviación estándar = {desviacion:.6f}")
-    print(f"varianza = {varianza:.6f}")
-
-    for i, porcentaje in enumerate(porcentajes):
-        a = i / 10
-        b = (i + 1) / 10
-        print(f"porcentaje en ({a:.1f} < x <= {b:.1f}) = {porcentaje:.2f}%")
-
 def main():
     x0, a, c, m, n = leer_entrada()
-    cola, periodo, ciclo = generar_congruencial(x0, a, c, m, n)
-    media, mediana, moda, desviacion, varianza, porcentajes = estadisticas(ciclo, m)
-    imprimir_resultados(cola, periodo, ciclo, media, mediana, moda, desviacion, varianza, porcentajes)
+    cola, periodo, ciclo = detectar_ciclo(x0, a, c, m)
+    datos_estadistica = generar_para_estadisticas(x0, a, c, m, n)
+
+    media, mediana, moda, desviacion, varianza, porcentajes = estadisticas(datos_estadistica, m)
+    print(', '.join(str(x) for x in cola))
+    print(', '.join(str(x) for x in periodo))
+    print(', '.join(str(x) for x in ciclo))
+    print(len(cola))
+    print(len(periodo))
+    print(len(ciclo))
+    print(f"{media:.6f}")
+    print(mediana)
+    print(moda)
+    print(f"{desviacion:.6f}")
+    print(f"{varianza:.6f}")
+    
+    for porcentaje in porcentajes:
+        print(f"{porcentaje:.2f}%")
 
 if __name__ == "__main__":
     main()
