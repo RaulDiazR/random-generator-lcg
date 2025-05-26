@@ -1,0 +1,12 @@
+Cómo ejecutar el programa
+-------------------------
+
+python3 main.py < <archivo>.txt
+
+
+Resultados
+----------
+
+Tras la realización de esta actividad se ha podido observar la utilidad del Método de la Congruencia Lineal (LCG) para la generación de números pseudoaleatorios, siendo bastante práctico en escenarios simples. Se logra obtener una mayor comprensión de los mecanismos que suelen utilizarse para crear estos conjuntos de números. En este caso, se obtienen de manera determinista a partir de parámetros definidos tales como la semilla, es decir, se obtienen siempre los mismos resultados al utilizar los mismos parámetros siempre. Si bien este factor hace que no sea tan conveniente de utilizar para escenarios más estrictos que requieran una mayor aleatoriedad, su ventaja es su facilidad de implementación y eficiencia. Existen otros generadores más sofisticados que este método, pero representa un buen inicio para adentrarse en el campo de los números aleatorios.
+
+Respecto a los resultados, el caso que más le pareció interesante al equipo fue de hecho el primero. Esto debido a que se obtuvo un ciclo largo, logrando ver una mejor cobertura del espacio de posibles valores a obtener y con una mejor aleatoriedad. Por otro lado, el menos interesante fue el caso c, pues su resultado mostraba un ciclo muy corto, no pudiendo destacar mucho en cuanto al aprovechamiento de los valores posibles a generar. Lo que se puede inferir de los datos de entrada es que si la semilla o el incremento no tienen una relación adecuada con el parámetro m, se pueden obtener ciclos cortos como en el caso c. El mejor caso que se puede idear para un LCG es que el máximo común divisor entre c y m sea igual a 1. También se observa que el módulo ayuda a definir el rango máximo de valores posibles a obtener, pues determina el límite superior del ciclo. Con un valor grande de m se podría tener mayor variedad de números si se consigue una buena relación con el multiplicador y el incremento. Respecto a la semilla, esta nos indica el lugar donde comenzará la secuencia. Y en cuanto al multiplicador, este afecta la distancia que habrá entre los números a generar.
